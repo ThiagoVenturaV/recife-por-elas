@@ -22,9 +22,22 @@ const HOST = process.env.HOST || '127.0.0.1';
 const app = express();
 
 // --- BLINDAGEM DE SEGURANÇA ---
-// Permite acesso de qualquer origem, já que o app na Vercel fará chamadas cross-origin
+const origensPermitidas = new Set(
+  [process.env.ALLOWED_ORIGINS, process.env.APP_BASE_URL]
+    .filter(Boolean)
+    .flatMap((valor) => String(valor).split(','))
+    .map((valor) => valor.trim().replace(/\/$/, ''))
+    .filter(Boolean),
+);
+if (process.env.NODE_ENV !== 'production') {
+  origensPermitidas.add('http://localhost:5173');
+  origensPermitidas.add('http://127.0.0.1:5173');
+}
 app.use(cors({
-  origin: '*',
+  origin(origin, callback) {
+    if (!origin || origensPermitidas.has(origin.replace(/\/$/, ''))) return callback(null, true);
+    return callback(new Error('origem nao permitida'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

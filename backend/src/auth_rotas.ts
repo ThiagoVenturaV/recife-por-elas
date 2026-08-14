@@ -58,7 +58,7 @@ async function enviarLinkReset(para: string, link: string, usuarioId: string): P
   const url = process.env.PLATAFORMA_EMAIL_URL;
   const tok = process.env.APP_EMAIL_RELAY_TOKEN;
   if (!url || !tok || !para) {
-    console.log(`[auth] (sem relay de e-mail) link de redefinicao para ${usuarioId}: ${link}`);
+    console.warn(`[auth] relay de e-mail indisponivel para ${usuarioId}; token de redefinicao nao foi registrado em log`);
     return;
   }
   try {

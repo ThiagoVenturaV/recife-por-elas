@@ -12,6 +12,7 @@ import express from 'express';
 import { randomBytes } from 'node:crypto';
 import { createReadStream, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { validarToken } from './auth';
 
 const DIR = path.join(__dirname, '..', 'uploads');
 
@@ -62,6 +63,11 @@ export function inicializarArquivos(app: Express): void {
     '/api/arquivos',
     express.raw({ type: () => true, limit: '60mb' }),
     (req: Request, res: Response) => {
+      const authorization = req.headers.authorization || '';
+      if (!validarToken(authorization.startsWith('Bearer ') ? authorization.slice(7) : '')) {
+        res.status(401).json({ erro: 'nao autenticado' });
+        return;
+      }
       const tipo = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
       const ext = TIPOS[tipo];
       if (!ext) {

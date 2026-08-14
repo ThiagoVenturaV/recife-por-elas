@@ -10,6 +10,7 @@ build/
 # Segredos e configurações locais
 .env
 .env.*
+!.env.example
 *.local
 credentials.json
 secret.key

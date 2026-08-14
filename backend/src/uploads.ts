@@ -11,6 +11,7 @@ import express from 'express';
 import { randomBytes } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { validarToken } from './auth';
 
 // backend/uploads (a partir de backend/dist em runtime). Mesma pasta que a
 // plataforma garante existir com o dono do serviço (não-root).
@@ -38,6 +39,11 @@ export function inicializarUploads(app: Express): void {
   // Receber UMA imagem como data URL base64. Parser próprio (limite maior) ANTES
   // do express.json global (1mb) — por isso inicializarUploads roda primeiro.
   app.post('/api/uploads', express.json({ limit: '8mb' }), (req: Request, res: Response) => {
+    const authorization = req.headers.authorization || '';
+    if (!validarToken(authorization.startsWith('Bearer ') ? authorization.slice(7) : '')) {
+      res.status(401).json({ erro: 'nao autenticado' });
+      return;
+    }
     const dados = req.body && typeof req.body.dados === 'string' ? (req.body.dados as string) : '';
     const m = /^data:([\w/+.-]+);base64,(.+)$/i.exec(dados);
     if (!m) {

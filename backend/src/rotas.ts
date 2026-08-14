@@ -5,6 +5,7 @@ import type { Express, Request, Response, NextFunction } from 'express';
 import type { Pool } from 'pg';
 import { validarToken, decifrarEmail } from './auth';
 import { unificarOportunidadesExternas } from './integracoes';
+import crypto from 'node:crypto';
 
 interface ReqAuth extends Request {
   usuarioId?: string;
@@ -657,7 +658,17 @@ export function registrarRotas(app: Express, pool: Pool): void {
     }
   });
 
-  app.post('/api/admin/sync-ckan', async (_req: Request, res: Response) => {
+  app.post('/api/admin/sync-ckan', async (req: Request, res: Response) => {
+    const configurado = process.env.ADMIN_SYNC_TOKEN || '';
+    const apresentado = String(req.headers['x-admin-token'] || '');
+    if (Buffer.byteLength(configurado, 'utf8') < 32) {
+      return res.status(503).json({ erro: 'sincronizacao administrativa nao configurada' });
+    }
+    const a = Buffer.from(apresentado, 'utf8');
+    const b = Buffer.from(configurado, 'utf8');
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+      return res.status(401).json({ erro: 'nao autenticado' });
+    }
     if (!pool) return res.status(503).json({ erro: 'banco de dados nao disponivel' });
     try {
       const { sincronizarEquipamentosCKAN } = await import('./services/ckanSync.js');
