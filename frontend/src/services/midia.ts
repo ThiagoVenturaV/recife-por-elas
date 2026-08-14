@@ -16,7 +16,7 @@
 // pedir; estados gravando (timer) / preview / enviando / erro; permissão negada
 // mostra aviso claro (não quebra a tela).
 export type TipoGravacao = 'audio' | 'video';
-import { BASE } from './api';
+import { BASE, getToken } from './api';
 
 function melhorMime(tipo: TipoGravacao): string {
   const candidatos =
@@ -158,6 +158,7 @@ export function enviarArquivo(
     xhr.open('POST', `${BASE}/arquivos`);
     const tipo = arquivo.type || 'application/octet-stream';
     xhr.setRequestHeader('Content-Type', tipo);
+    xhr.setRequestHeader('Authorization', `Bearer ${getToken() || ''}`);
     if (xhr.upload && onProgresso) {
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) onProgresso(Math.round((e.loaded / e.total) * 100));

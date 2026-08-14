@@ -9,8 +9,8 @@
 import crypto from 'node:crypto';
 import type { Pool } from 'pg';
 
-if (!process.env.APP_SECRET) {
-  throw new Error('FATAL: APP_SECRET ausente no ambiente. Não é permitido o uso de chaves hardcoded.');
+if (!process.env.APP_SECRET || Buffer.byteLength(process.env.APP_SECRET, 'utf8') < 32) {
+  throw new Error('FATAL: APP_SECRET deve conter pelo menos 32 bytes.');
 }
 const SEGREDO = process.env.APP_SECRET;
 const chaveAES = crypto.createHash('sha256').update(SEGREDO + '::aes').digest();

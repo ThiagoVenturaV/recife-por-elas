@@ -25,6 +25,8 @@ Copie o exemplo e preencha:
 No arquivo .env, preencha:
 - DB_PASSWORD — uma senha forte para o banco.
 - APP_SECRET — gere com "openssl rand -hex 32" e cole.
+- ADMIN_SYNC_TOKEN — token aleatório de 32 bytes ou mais para a sincronização administrativa.
+- ALLOWED_ORIGINS — origens HTTPS permitidas, separadas por vírgula.
 - PORTA_PUBLICA — a porta onde a app responde (ex.: 8080).
 - As chaves de serviços externos que a app usa (se houver).
 

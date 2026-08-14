@@ -8,12 +8,18 @@ export const BASE = (envUrl && envUrl.startsWith('/') && !envUrl.startsWith('//'
 const CHAVE_TOKEN = 'app_token';
 
 export function getToken(): string | null {
-  return localStorage.getItem(CHAVE_TOKEN);
+  const atual = sessionStorage.getItem(CHAVE_TOKEN);
+  const legado = localStorage.getItem(CHAVE_TOKEN);
+  if (!atual && legado) sessionStorage.setItem(CHAVE_TOKEN, legado);
+  localStorage.removeItem(CHAVE_TOKEN);
+  return atual || legado;
 }
 export function setToken(t: string) {
-  localStorage.setItem(CHAVE_TOKEN, t);
+  sessionStorage.setItem(CHAVE_TOKEN, t);
+  localStorage.removeItem(CHAVE_TOKEN);
 }
 export function sair() {
+  sessionStorage.removeItem(CHAVE_TOKEN);
   localStorage.removeItem(CHAVE_TOKEN);
 }
 
