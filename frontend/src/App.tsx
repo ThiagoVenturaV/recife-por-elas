@@ -25,7 +25,9 @@ function Conteudo() {
   const [resetToken] = useState(() => new URLSearchParams(window.location.search).get('reset'));
 
   useEffect(() => {
-    if (resetToken && caminho !== '/entrar') navegar('/entrar');
+    if (!resetToken) return;
+    if (caminho !== '/entrar') navegar('/entrar');
+    else window.history.replaceState({}, '', '/entrar');
   }, [resetToken, caminho]);
 
   // ── /entrar ──
